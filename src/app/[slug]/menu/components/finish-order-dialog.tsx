@@ -25,6 +25,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { error } from "console";
+import { create } from "domain";
+import { ConsumptionMethod } from "@prisma/client";
+import { createOrder } from "../actions/create-order";
+import { use, useContext } from "react";
+import { CartContext } from "../contexts/cart";
+import { useParams, useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().trim().min(1, {
@@ -49,6 +56,9 @@ interface FinishOrderDialogProps {
 }
 
 const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
+  const { slug } = useParams<{ slug: string }>();
+  const { products } = useContext(CartContext);
+  const searchParams = useSearchParams();
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,8 +67,21 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
     },
     shouldUnregister: true,
   });
-  const onSubmit = (data: FormSchema) => {
-    console.log({ data });
+  const onSubmit = async (data: FormSchema) => {
+    try {
+      const consumptionMethod = searchParams.get(
+        "consumptionMethod"
+      ) as ConsumptionMethod;
+      await createOrder({
+        consumptionMethod,
+        customerCpf: data.cpf,
+        customerName: data.name,
+        products,
+        slug,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>

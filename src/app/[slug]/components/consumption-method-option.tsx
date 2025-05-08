@@ -31,7 +31,7 @@ const ConsumptionMethodOption = ({
           />
         </div>
         <Button variant="secondary" className="rounded-full" asChild>
-          <Link href={`/${slug}/menu?consumptionMethod=${option}`}>
+          <Link href={`/${slug}/menu?consumptionMethod=${option.toString()}`}>
             {buttonText}
           </Link>
         </Button>
